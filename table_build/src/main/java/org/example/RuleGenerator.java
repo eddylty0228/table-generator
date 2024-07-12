@@ -97,7 +97,7 @@ public class RuleGenerator {
         String dstPathTemplate = "hdfs://hdfs-ha/bdbham/bdbham_SHFH/input/day/data/%s/${YYYY}${MM}/${DD}/A/%s_${YYYY}${MM}${DD}.dtf";
         String tmpPathTemplate = "hdfs://hdfs-ha/user/pipline/tmp/bdbham_SHFH/input/day/data/%s/${YYYY}${MM}/${DD}/A/%s_${YYYY}${MM}${DD}.dtf";
 
-        // 使用模板和日期组件构建路径
+        // 使用模板构建路径
         String srcPath = String.format(srcPathTemplate, outputFileName);
         String dstPath = String.format(dstPathTemplate, baseFolderName, outputFileName);
         String tmpPath = String.format(tmpPathTemplate, baseFolderName, outputFileName);
