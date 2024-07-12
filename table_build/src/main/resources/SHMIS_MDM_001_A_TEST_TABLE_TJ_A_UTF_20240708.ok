@@ -1,0 +1,14 @@
+<datades>
+    <format>dtf</format>
+    <encoding>utf</encoding>
+    <srcdbtype>db2</srcdbtype> 
+    <updatemode>updatemode</updatemode>
+    <incDateColumn></incDateColumn>
+    <rows>0</rows>
+    <size>0</size>
+    <columns>2</columns>
+    <struct_desc></struct_desc>
+    <table_struct>1;SHMIS_MDM;001;A_TEST_TABLE;A;CUST_ID;客户编号;VARCHAR;60;60;0;N;1;客户编号
+    2;SHMIS_MDM;001;A_TEST_TABLE;A;INT_RATE;;DECIMAL;18;18;9;Y;;
+    3;SHMIS_MDM;001;A_TEST_TABLE;A;MY_KEY;密钥;VARCHAR;10;10;0;Y;2;密钥;</table_struct>
+</datades>
