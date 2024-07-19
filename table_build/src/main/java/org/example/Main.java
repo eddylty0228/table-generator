@@ -21,6 +21,7 @@ public class Main {
         }
 
         switch (args[0]) {
+
             case "-multitb":
                 try{
                     List<String> okFiles = OkFileReader.readOkFiles(args[1]);

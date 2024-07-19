@@ -208,13 +208,6 @@ public class MainGUI {
 
                     System.out.println("Generating Fex Template...");
 
-                    System.out.println("Generating Multi Table Template...");
-                    MultiTableTempGenerator multiTableTempGenerator = new MultiTableTempGenerator(okFiles, tableTemplate, outputFolder);
-                    multiTableTempGenerator.generate();
-
-                    System.out.println("Generating Rule Template...");
-                    RuleGenerator ruleGenerator = new RuleGenerator(ruleTemplate, outputFolder, inputFileNames);
-                    ruleGenerator.generate();
 
                     System.out.println("File generation completed.");
 

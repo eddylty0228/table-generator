@@ -7,25 +7,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class RuleGenerator {
-    String excelFilePath;
-    String outputFolder;
-    List<String> filenames;
-    Map<String, Integer> headerIndexMap;
+    private String excelFilePath;
+    private String outputFolder;
+    private List<String> filenames;
+    private Map<String, Integer> headerIndexMap;
+    private RuleData ruleData;
 
-    public RuleGenerator(String excelFilePath, String outputFolder, List<String> filenames) {
+    public RuleGenerator(String excelFilePath, String outputFolder, List<String> filenames, RuleData ruleData) {
         this.excelFilePath = excelFilePath;
         this.outputFolder = outputFolder;
         this.filenames = filenames;
         this.headerIndexMap = new HashMap<>();
+        this.ruleData = ruleData;
     }
 
     public void generate() {
@@ -92,47 +90,30 @@ public class RuleGenerator {
         String month = dateStr.substring(4, 6);
         String day = dateStr.substring(6, 8);
 
-        // 构建新文件名部分
+        // 保留指定的代码段
         String baseFileName = filename.substring(0, filename.length() - 13);
-
         String outputFileName = baseFileName.replace("_TJ_A_UTF", "_A_UTF");
         String baseFolderName = outputFileName.replace("_A_UTF", "");
 
-        // 构建路径模板
-        String srcPathTemplate = "/nasbham_sh/input/day/${YYYY}${MM}${DD}/%s_${YYYY}${MM}${DD}.dtf";
-        String dstPathTemplate = "hdfs://hdfs-ha/bdbham/bdbham_SHFH/input/day/data/%s/${YYYY}${MM}/${DD}/A/%s_${YYYY}${MM}${DD}.dtf";
-        String tmpPathTemplate = "hdfs://hdfs-ha/user/pipline/tmp/bdbham_SHFH/input/day/data/%s/${YYYY}${MM}/${DD}/A/%s_${YYYY}${MM}${DD}.dtf";
-
-        // 使用模板构建路径，不替换日期占位符
-        String srcPath = String.format(srcPathTemplate, outputFileName);
-        String dstPath = String.format(dstPathTemplate, baseFolderName, outputFileName);
-        String tmpPath = String.format(tmpPathTemplate, baseFolderName, outputFileName);
+        String srcPath = String.format(ruleData.getSrcPathTemplate(), outputFileName);
+        String dstPath = String.format(ruleData.getDstPathTemplate(), baseFolderName, outputFileName);
+        String tmpPath = String.format(ruleData.getTmpPathTemplate(), baseFolderName, outputFileName);
 
         // 创建新行并填充数据
         Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-        row.createCell(headerIndexMap.get("owner")).setCellValue("BHAM_BDL_SHFH_PROJECT");
-        row.createCell(headerIndexMap.get("srcPath")).setCellValue(srcPath); // srcPath
-        row.createCell(headerIndexMap.get("dstPath")).setCellValue(dstPath); // dstPath
-        row.createCell(headerIndexMap.get("tmpPath")).setCellValue(tmpPath); // tmpPath
-        row.createCell(headerIndexMap.get("triggerCallbackName")).setCellValue(""); // triggerCallbackName
-        row.createCell(headerIndexMap.get("ignore")).setCellValue("FALSE"); // ignore
-        row.createCell(headerIndexMap.get("condition")).setCellValue("{\"startDate\":\"" + year + "-" + month + "-" + day + "\"}"); // condition
-        row.createCell(headerIndexMap.get("alertTime")).setCellValue(""); // alertTime
-        row.createCell(headerIndexMap.get("alertCount")).setCellValue(0); // alertCount
-        row.createCell(headerIndexMap.get("alertInerval")).setCellValue(0); // alertInerval
-        row.createCell(headerIndexMap.get("lzo")).setCellValue("FALSE"); // lzo
-        row.createCell(headerIndexMap.get("transferCheckFile")).setCellValue("TRUE"); // transferCheckFile
-        row.createCell(headerIndexMap.get("maxRetryCount")).setCellValue(1); // maxRetryCount
-        row.createCell(headerIndexMap.get("schedule")).setCellValue("D"); // schedule
-    }
-
-    public static void main(String[] args) {
-        // 示例调用
-        List<String> filenames = Arrays.asList(
-                "TJMIS_MDM_001_A_TEST_TABLE_TJ_A_UTF_20240708.dtf",
-                "SHMIS_MDM_002_A_TEST_TABLE_TJ_A_UTF_20240709.dtf"
-        );
-        RuleGenerator updater = new RuleGenerator("src/main/resources/fileMonitorRules.xls", "src/main/rule", filenames);
-        updater.generate();
+        row.createCell(headerIndexMap.get("owner")).setCellValue(ruleData.getOwner());
+        row.createCell(headerIndexMap.get("srcPath")).setCellValue(srcPath);
+        row.createCell(headerIndexMap.get("dstPath")).setCellValue(dstPath);
+        row.createCell(headerIndexMap.get("tmpPath")).setCellValue(tmpPath);
+        row.createCell(headerIndexMap.get("triggerCallbackName")).setCellValue(ruleData.getTriggerCallbackName());
+        row.createCell(headerIndexMap.get("ignore")).setCellValue(ruleData.getIgnore());
+        row.createCell(headerIndexMap.get("condition")).setCellValue(ruleData.getConditionTemplate().replace("${YYYY}", year).replace("${MM}", month).replace("${DD}", day));
+        row.createCell(headerIndexMap.get("alertTime")).setCellValue(ruleData.getAlertTime());
+        row.createCell(headerIndexMap.get("alertCount")).setCellValue(ruleData.getAlertCount());
+        row.createCell(headerIndexMap.get("alertInerval")).setCellValue(ruleData.getAlertInerval());
+        row.createCell(headerIndexMap.get("lzo")).setCellValue(ruleData.getLzo());
+        row.createCell(headerIndexMap.get("transferCheckFile")).setCellValue(ruleData.getTransferCheckFile());
+        row.createCell(headerIndexMap.get("maxRetryCount")).setCellValue(ruleData.getMaxRetryCount());
+        row.createCell(headerIndexMap.get("schedule")).setCellValue(ruleData.getSchedule());
     }
 }
