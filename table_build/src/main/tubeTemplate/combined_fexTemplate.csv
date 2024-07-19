@@ -1,4 +1,3 @@
 ﻿操作标识,服务方系统中文名称,服务方系统四位编码,服务方系统IP,源文件落地路径,源文件名称,初始化ID,消费方系统中文名称,消费方四位编码,消费方系统IP,文件接受路径,落地文件名称,下发方系统标识,拆分类型,初始化日期,卸数频度,组织机构名称,组织机构代码
-I,数据湖分行业务领域集市,SHFH,28.6.12.3,/tmp/YYYYMMDD,SHMIS_GDM_NNGB_TJ_A_UTF_YYYYMMDD.dtf,,数据湖分行业务领域集市,BDPS,28.4.185.120,/nasbham_sh/input/day/YYYYMMDD,SHMIS_GDM_NNGB_A_UTF_YYYYMMDD.dtf,Y,N,,9,,
-I,数据湖分行业务领域集市,SHFH,28.6.12.3,/tmp/YYYYMMDD,TJMIS_GDM_SHBU_TJ_A_UTF_YYYYMMDD.dtf,,数据湖分行业务领域集市,BDPS,28.4.185.120,/nasbham_sh/input/day/YYYYMMDD,TJMIS_GDM_SHBU_A_UTF_YYYYMMDD.dtf,Y,N,,9,,
-I,数据湖分行业务领域集市,SHFH,28.6.12.3,/tmp/YYYYMMDD,SHMIS_GDM_SHBU_TJ_A_UTF_YYYYMMDD.dtf,,数据湖分行业务领域集市,BDPS,28.4.185.120,/nasbham_sh/input/day/YYYYMMDD,SHMIS_GDM_SHBU_A_UTF_YYYYMMDD.dtf,Y,N,,9,,
+I,数据湖分行业务领域集市,SHFH,28.6.12.3,/tmp/YYYYMMDD,TEST_TABLE_001,,数据湖分行业务领域集市,BDPS,28.4.185.120,/nasbham_sh/input/day/YYYYMMDD,TEST_TABLE_001,Y,N,,9,,
+I,数据湖分行业务领域集市,SHFH,28.6.12.3,/tmp/YYYYMMDD,TEST_TABLE_002,,数据湖分行业务领域集市,BDPS,28.4.185.120,/nasbham_sh/input/day/YYYYMMDD,TEST_TABLE_002,Y,N,,9,,

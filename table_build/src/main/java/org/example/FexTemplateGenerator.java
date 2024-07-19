@@ -6,23 +6,22 @@ import org.apache.logging.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FexTemplateGenerator {
     String templatePath;
-    List<String> inputFileNames;
+    List<FexFileData> inputFexFileDataList;
     String outputDirectory;
     private static final Logger logger = LogManager.getLogger(FexTemplateGenerator.class);
 
-    public FexTemplateGenerator(String templatePath, List<String> inputFileNames, String outputFileDirectory) {
+    public FexTemplateGenerator(String templatePath, List<FexFileData> inputFexFileDataList, String outputFileDirectory) {
         this.templatePath = templatePath;
-        this.inputFileNames = inputFileNames;
+        this.inputFexFileDataList = inputFexFileDataList;
         this.outputDirectory = outputFileDirectory;
     }
 
@@ -30,10 +29,10 @@ public class FexTemplateGenerator {
         String outputFileName = generateOutputFileName(outputDirectory);
 
         try {
-            generateCsvFromTemplate(templatePath, outputFileName, inputFileNames);
-            logger.info("File generated successfully: {}", outputFileName);
+            generateCsvFromTemplate(templatePath, outputFileName, inputFexFileDataList);
+            logger.info("文件生成成功: {}", outputFileName);
         } catch (IOException e) {
-            logger.error("Error generating file", e);
+            logger.error("生成文件时出错", e);
         }
     }
 
@@ -42,8 +41,8 @@ public class FexTemplateGenerator {
         return Paths.get(outputDirectory, outputFileName).toString();
     }
 
-    public static void generateCsvFromTemplate(String templatePath, String outputFileName, List<String> inputFileNames) throws IOException {
-        // Create output directory if it doesn't exist
+    public static void generateCsvFromTemplate(String templatePath, String outputFileName, List<FexFileData> inputFexFileDataList) throws IOException {
+        // 如果输出目录不存在，则创建它
         java.nio.file.Path outputPath = Paths.get(outputFileName).getParent();
         if (outputPath != null && !Files.exists(outputPath)) {
             Files.createDirectories(outputPath);
@@ -54,56 +53,53 @@ public class FexTemplateGenerator {
 
             String line;
             boolean isHeader = true;
-            String templateLine = null;
+            String headerLine = null;
 
-            // Read template content
-            while ((line = reader.readLine()) != null) {
-                if (isHeader) {
-                    writer.write(line);
-                    writer.newLine();
-                    isHeader = false;
-                } else {
-                    templateLine = line;
-                    break; // Only read the second line as template
-                }
+            // 读取模板头部
+            if ((headerLine = reader.readLine()) != null) {
+                writer.write(headerLine);
+                writer.newLine();
             }
 
-            // Process each input file name
-            for (String inputFileName : inputFileNames) {
-                if (templateLine != null) {
-                    String processedLine = templateLine.replace("源文件名称", generateSourceFileName(inputFileName))
-                            .replace("落地文件名称", generateLandingFileName(inputFileName));
-                    writer.write(processedLine);
-                    writer.newLine();
-                }
+            // 处理每个输入文件数据
+            for (FexFileData fexFileData : inputFexFileDataList) {
+                String processedLine = fexFileData.getOperationFlag() + "," +
+                        fexFileData.getServiceProviderSystemChineseName() + "," +
+                        fexFileData.getServiceProviderSystemCode() + "," +
+                        fexFileData.getServiceProviderSystemIP() + "," +
+                        fexFileData.getSourceFileLandingPath() + "," +
+                        fexFileData.getSourceFileName() + "," +
+                        fexFileData.getInitializationID() + "," +
+                        fexFileData.getConsumerSystemChineseName() + "," +
+                        fexFileData.getConsumerSystemCode() + "," +
+                        fexFileData.getConsumerSystemIP() + "," +
+                        fexFileData.getFileReceivePath() + "," +
+                        fexFileData.getLandingFileName() + "," +
+                        fexFileData.getIssuingSystemFlag() + "," +
+                        fexFileData.getSplitType() + "," +
+                        fexFileData.getInitializationDate() + "," +
+                        fexFileData.getDataUnloadFrequency() + "," +
+                        fexFileData.getOrganizationName() + "," +
+                        fexFileData.getOrganizationCode();
+                writer.write(processedLine);
+                writer.newLine();
             }
         }
-    }
-
-    private static String generateSourceFileName(String inputFileName) {
-        String baseFileName = inputFileName.substring(0, inputFileName.length() - 13);
-        return baseFileName + "_YYYYMMDD.dtf";
-    }
-
-    private static String generateLandingFileName(String inputFileName) {
-        String baseFileName = inputFileName.substring(0, inputFileName.length() - 13);
-        return baseFileName.replace("_TJ_A_UTF", "_A_UTF") + "_YYYYMMDD.dtf";
     }
 
     public static void main(String[] args) {
         // 模板路径
         String templatePath = "src/main/resources/fexTemplate.csv";
-        // 输入文件名列表
-        List<String> inputFileNames = Arrays.asList(
-                "SHMIS_GDM_NNGB_TJ_A_UTF_20240708.dtf",
-                "TJMIS_GDM_SHBU_TJ_A_UTF_20240709.dtf",
-                "SHMIS_GDM_SHBU_TJ_A_UTF_20240710.dtf"
-        );
         // 输出目录
         String outputDirectory = "src/main/tubeTemplate";
+        List<FexFileData> inputFexFileDataList = new ArrayList<>();
+        FexFileData fexFileData01 = new FexFileData("TEST_TABLE_001","TEST_TABLE_001");
+        FexFileData fexFileData02 = new FexFileData("TEST_TABLE_002","TEST_TABLE_002");
 
-        // 创建并运行FexTemplateGenerator
-        FexTemplateGenerator generator = new FexTemplateGenerator(templatePath, inputFileNames, outputDirectory);
+        inputFexFileDataList.add(fexFileData01);
+        inputFexFileDataList.add(fexFileData02);
+        FexTemplateGenerator generator = new FexTemplateGenerator(templatePath, inputFexFileDataList, outputDirectory);
         generator.generate();
     }
 }
+
