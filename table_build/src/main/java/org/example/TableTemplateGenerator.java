@@ -15,12 +15,21 @@ public class TableTemplateGenerator {
     private String templateFilePath;
     private String outputFolderPath;
     private Map<String, Integer> templateMappings;
+    private static TableData tableData;
 
     // 构造函数，初始化路径
     public TableTemplateGenerator(String okFilePath, String templateFilePath, String outputFolderPath) {
         this.okFilePath = okFilePath;
         this.templateFilePath = templateFilePath;
         this.outputFolderPath = outputFolderPath;
+        tableData = new TableData();
+    }
+    public TableTemplateGenerator(String okFilePath, String templateFilePath, String outputFolderPath, TableData tableData) {
+        this.okFilePath = okFilePath;
+        this.templateFilePath = templateFilePath;
+        this.outputFolderPath = outputFolderPath;
+        this.tableData = tableData;
+
     }
 
     // 生成Excel文件
@@ -74,15 +83,15 @@ public class TableTemplateGenerator {
 
             // 填充基础数据
             data.put("*英文名", fileBaseName);
-            data.put("中文名/实体名", "");
-            data.put("生命周期", "");
-            data.put("备注", "");
-            data.put("是否归档", "false");
+            data.put("中文名/实体名", tableData.getChineseName());
+            data.put("生命周期", tableData.getLifeCycle());
+            data.put("备注", tableData.getRemarks());
+            data.put("是否归档", tableData.getIsArchived());
             data.put("源表名", upperBaseName);
             data.put("接口文件名", upperBaseName);
-            data.put("下发方式", "01");
-            data.put("表属性系统四位编码", "");
-            data.put("上一版本结束日期", "");
+            data.put("下发方式", tableData.getDeliveryMethod());
+            data.put("表属性系统四位编码", tableData.getTableAttributeSystemCode());
+            data.put("上一版本结束日期", tableData.getPreviousVersionEndDate());
             data.put("本版本数据开始日期", versionDate);
 
             // 解析XML内容

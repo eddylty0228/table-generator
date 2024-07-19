@@ -7,10 +7,13 @@ import java.util.List;
 public class Main {
     public static String directoryPath = "src/main/output";
     public static String fexTemplatePath = "src/main/templates/fexTemplateEmpty.csv";
-    public static String settingsFilePath = "settings.ser";
+    public static String tableTemplatePath = "src/main/templates/addTableTemplate.xlsx";
+    public static String fexSettingsFilePath = "cfg/fexSettings.ser";
+    public static String tableSettingsFilePath = "cfg/tableSettings.ser";
 
     public static void main(String[] args) {
-        FexFileData fexFileDataSetting = loadSettings();
+        FexFileData fexFileDataSetting = loadFexSettings();
+        TableData tableDataSetting = loadTableSettings();
 
         if (args.length == 0) {
             System.out.println("No command line arguments provided.");
@@ -18,28 +21,69 @@ public class Main {
         }
 
         switch (args[0]) {
+            case "-multitb":
+                try{
+                    List<String> okFiles = OkFileReader.readOkFiles(args[1]);
+                    MultiTableTempGenerator multiTableTempGenerator = new MultiTableTempGenerator(okFiles,tableTemplatePath,directoryPath,tableDataSetting);
+                    multiTableTempGenerator.generate();
+                    System.out.println("successfully generated multi table temp file.");
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            case "-tbsetting":
+                if (args.length != 3) {
+                    System.out.println("Usage: -tbsetting <variable_name> <value>, Example: -tbsetting chineseName ExampleName");
+                    return;
+                }
+                try {
+                    changeTableSetting(tableDataSetting, args[1], args[2]);
+                    saveTableSettings(tableDataSetting);
+                    System.out.println("Table setting updated successfully.");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case "-table":
+                if (args.length != 2) {
+                    System.out.println("Wrong number of arguments. Usage: -table <okFilePath>");
+                    return;
+                }
+                try {
+                    TableTemplateGenerator tableTemplateGenerator = new TableTemplateGenerator(args[1], tableTemplatePath, directoryPath, tableDataSetting);
+                    tableTemplateGenerator.generate();
+                    System.out.println("Generated table template.");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+
             case "-view":
                 System.out.println("Settings:");
                 System.out.println("    fex:");
                 fexFileDataSetting.printAllVariables();
                 System.out.println("fexTemplatePath = " + fexTemplatePath);
+                System.out.println("    table:");
+                tableDataSetting.printData();
                 break;
-            case "-csetting":
+
+            case "-fxsetting":
                 if (args.length != 3) {
-                    System.out.println("Usage: -csetting <variable_name> <value>, Example: -csetting serviceProviderSystemCode 12.18.1");
+                    System.out.println("Usage: -fxsetting <variable_name> <value>, Example: -fxsetting serviceProviderSystemCode 12.18.1");
                     return;
                 }
                 try {
-                    changeSetting(fexFileDataSetting, args[1], args[2]);
-                    saveSettings(fexFileDataSetting);
+                    changeFexSetting(fexFileDataSetting, args[1], args[2]);
+                    saveFexSettings(fexFileDataSetting);
                     System.out.println("Setting updated successfully.");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
-            case "-multigen": // -multigen tablePath1,tablePath2,tablePath3
+
+            case "-fexmultigen":
                 if (args.length != 3) {
-                    System.out.println("Usage: -multigen <value>,<value>,<value> <landingName>,<landingName>,<landingName>");
+                    System.out.println("Usage: -fexmultigen <value>,<value>,<value> <landingName>,<landingName>,<landingName>");
                     return;
                 }
                 String[] receivingNames = args[1].split(",");
@@ -54,9 +98,10 @@ public class Main {
                 FexTemplateGenerator multiGenerator = new FexTemplateGenerator(fexTemplatePath, multiInputFexFileDataList, directoryPath);
                 multiGenerator.generate();
                 break;
-            case "-gen": // -defaultgen sourceName landingName
+
+            case "-fexgen":
                 if (args.length != 3) {
-                    System.out.println("need 3 arguments provided. Example: -gen Table.dtf Table.dtf");
+                    System.out.println("Usage: -fexgen sourceName landingName");
                     return;
                 }
                 List<FexFileData> inputFexFileDataList = new ArrayList<>();
@@ -67,13 +112,14 @@ public class Main {
                 FexTemplateGenerator generator = new FexTemplateGenerator(fexTemplatePath, inputFexFileDataList, directoryPath);
                 generator.generate();
                 break;
+
             default:
                 System.out.println("Invalid command.");
                 break;
         }
     }
 
-    private static void changeSetting(FexFileData fexFileDataSetting, String variableName, String value) {
+    private static void changeFexSetting(FexFileData fexFileDataSetting, String variableName, String value) {
         switch (variableName) {
             case "operationFlag":
                 fexFileDataSetting.setOperationFlag(value);
@@ -135,24 +181,74 @@ public class Main {
         }
     }
 
-    private static void saveSettings(FexFileData fexFileDataSetting) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(settingsFilePath))) {
+    private static void changeTableSetting(TableData tableDataSetting, String variableName, String value) {
+        switch (variableName) {
+            case "chineseName":
+                tableDataSetting.setChineseName(value);
+                break;
+            case "lifeCycle":
+                tableDataSetting.setLifeCycle(value);
+                break;
+            case "remarks":
+                tableDataSetting.setRemarks(value);
+                break;
+            case "isArchived":
+                tableDataSetting.setIsArchived(value);
+                break;
+            case "deliveryMethod":
+                tableDataSetting.setDeliveryMethod(value);
+                break;
+            case "tableAttributeSystemCode":
+                tableDataSetting.setTableAttributeSystemCode(value);
+                break;
+            case "previousVersionEndDate":
+                tableDataSetting.setPreviousVersionEndDate(value);
+                break;
+            default:
+                System.out.println("Invalid variable name.");
+                break;
+        }
+    }
+
+    private static void saveFexSettings(FexFileData fexFileDataSetting) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fexSettingsFilePath))) {
             oos.writeObject(fexFileDataSetting);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static FexFileData loadSettings() {
-        File file = new File(settingsFilePath);
+    private static void saveTableSettings(TableData tableDataSetting) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tableSettingsFilePath))) {
+            oos.writeObject(tableDataSetting);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static FexFileData loadFexSettings() {
+        File file = new File(fexSettingsFilePath);
         if (!file.exists()) {
             return new FexFileData("", "");
         }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(settingsFilePath))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fexSettingsFilePath))) {
             return (FexFileData) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return new FexFileData("", "");
+        }
+    }
+
+    private static TableData loadTableSettings() {
+        File file = new File(tableSettingsFilePath);
+        if (!file.exists()) {
+            return new TableData();
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(tableSettingsFilePath))) {
+            return (TableData) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new TableData();
         }
     }
 
