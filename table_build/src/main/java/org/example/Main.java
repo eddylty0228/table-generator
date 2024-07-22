@@ -8,12 +8,15 @@ public class Main {
     public static String directoryPath = "src/main/output";
     public static String fexTemplatePath = "src/main/templates/fexTemplateEmpty.csv";
     public static String tableTemplatePath = "src/main/templates/addTableTemplate.xlsx";
+    public static String ruleTemplatePath = "src/main/templates/fileMonitorRules.xls";
     public static String fexSettingsFilePath = "cfg/fexSettings.ser";
     public static String tableSettingsFilePath = "cfg/tableSettings.ser";
+    public static String ruleSettingFilePath = "cfg/ruleSetting.ser";
 
     public static void main(String[] args) {
         FexFileData fexFileDataSetting = loadFexSettings();
         TableData tableDataSetting = loadTableSettings();
+        RuleData ruleDataSetting = loadRuleSetting();
 
         if (args.length == 0) {
             System.out.println("No command line arguments provided.");
@@ -22,6 +25,30 @@ public class Main {
 
         switch (args[0]) {
 
+            case "-rsetting":
+                if (args.length != 3) {
+                    System.out.println("Invalid number of arguments.");
+                    return;
+                }
+                try {
+                    changeRuleSetting(ruleDataSetting,args[1],args[2]);
+                    System.out.println("Rule setting changed.");
+                }catch (Exception e){
+                    System.out.println(e.getMessage());
+                }
+                //-rule filename filename filename
+            case "-rule":
+                try {
+                    List<String> filenames = new ArrayList<>();
+                    for (int i = 1; i < args.length; i++) {
+                        filenames.add(args[i]);
+                    }
+                    RuleGenerator ruleGenerator = new RuleGenerator(ruleTemplatePath,directoryPath,filenames,ruleDataSetting);
+                    ruleGenerator.generate();
+                }catch (Exception e){
+                    System.out.println(e.getMessage());
+                    System.out.println("Usage: -rule <filename> <filename> <filename> <filename>");
+                }
             case "-multitb":
                 try{
                     List<String> okFiles = OkFileReader.readOkFiles(args[1]);
@@ -211,6 +238,61 @@ public class Main {
         }
     }
 
+    private static void changeRuleSetting(RuleData ruleDataSetting, String variableName, String value) {
+        switch (variableName) {
+            case "schedule":
+                ruleDataSetting.setSchedule(value);
+                break;
+            case "maxRetryCount":
+                ruleDataSetting.setMaxRetryCount(value);
+                break;
+            case "transferCheckFile":
+                ruleDataSetting.setTransferCheckFile(value);
+                break;
+            case "lzo":
+                ruleDataSetting.setLzo(value);
+                break;
+            case "alertInerval":
+                ruleDataSetting.setAlertInerval(value);
+                break;
+            case "alertCount":
+                ruleDataSetting.setAlertCount(value);
+                break;
+            case "alertTime":
+                ruleDataSetting.setAlertTime(value);
+                break;
+            case "conditionTemplate":
+                ruleDataSetting.setConditionTemplate(value);
+                break;
+            case "ignore":
+                ruleDataSetting.setIgnore(value);
+                break;
+            case "triggerCallbackName":
+                ruleDataSetting.setTriggerCallbackName(value);
+                break;
+            case "srcPathTemplate":
+                ruleDataSetting.setSrcPathTemplate(value);
+                break;
+            case "dstPathTemplate":
+                ruleDataSetting.setDstPathTemplate(value);
+                break;
+            case "tmpPathTemplate":
+                ruleDataSetting.setTmpPathTemplate(value);
+                break;
+            case "owner":
+                ruleDataSetting.setOwner(value);
+                break;
+        }
+    }
+
+    private static void saveRuleSetting(RuleData ruleDataSetting){
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ruleSettingFilePath))) {
+            oos.writeObject(ruleDataSetting);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void saveFexSettings(FexFileData fexFileDataSetting) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fexSettingsFilePath))) {
             oos.writeObject(fexFileDataSetting);
@@ -224,6 +306,19 @@ public class Main {
             oos.writeObject(tableDataSetting);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static RuleData loadRuleSetting() {
+        File file = new File(ruleSettingFilePath);
+        if (!file.exists()) {
+            return new RuleData();
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ruleSettingFilePath))) {
+            return (RuleData) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new RuleData();
         }
     }
 

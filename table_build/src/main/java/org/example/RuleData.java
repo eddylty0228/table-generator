@@ -9,13 +9,13 @@ public class RuleData {
     private String ignore;
     private String conditionTemplate;
     private String alertTime;
-    private int alertCount;
-    private int alertInerval;
+    private String alertCount;
+    private String alertInerval;
     private String lzo;
     private String transferCheckFile;
-    private int maxRetryCount;
+    private String maxRetryCount;
     private String schedule;
-    public RuleData(String owner, String srcPathTemplate, String dstPathTemplate, String tmpPathTemplate, String triggerCallbackName, String ignore, String conditionTemplate, String alertTime,int alertCount, int alertInerval, String lzo, String transferCheckFile, int maxRetryCount, String schedule) {
+    public RuleData(String owner, String srcPathTemplate, String dstPathTemplate, String tmpPathTemplate, String triggerCallbackName, String ignore, String conditionTemplate, String alertTime,String alertCount, String alertInerval, String lzo, String transferCheckFile, String maxRetryCount, String schedule) {
         this.owner = owner;
         this.srcPathTemplate = srcPathTemplate;
         this.dstPathTemplate = dstPathTemplate;
@@ -40,12 +40,28 @@ public class RuleData {
         this.ignore = "FALSE";
         this.conditionTemplate = "{\"startDate\":\"${YYYY}-${MM}-${DD}\"}";
         this.alertTime = "";
-        this.alertCount = 0;
-        this.alertInerval = 0;
+        this.alertCount = "0";
+        this.alertInerval = "0";
         this.lzo = "FALSE";
         this.transferCheckFile = "TRUE";
-        this.maxRetryCount = 1;
+        this.maxRetryCount = "1";
         this.schedule = "D";
+    }
+    public RuleData(RuleData ruleData){
+        this.owner = ruleData.getOwner();
+        this.srcPathTemplate = ruleData.getSrcPathTemplate();
+        this.dstPathTemplate = ruleData.getDstPathTemplate();
+        this.tmpPathTemplate = ruleData.getTmpPathTemplate();
+        this.triggerCallbackName = ruleData.getTriggerCallbackName();
+        this.ignore = ruleData.getIgnore();
+        this.conditionTemplate = ruleData.getConditionTemplate();
+        this.alertTime = ruleData.getAlertTime();
+        this.alertCount = ruleData.getAlertCount();
+        this.alertInerval = ruleData.getAlertInerval();
+        this.lzo = ruleData.getLzo();
+        this.transferCheckFile = ruleData.getTransferCheckFile();
+        this.maxRetryCount = ruleData.getMaxRetryCount();
+        this.schedule = ruleData.getSchedule();
     }
 
     // Getters and setters for each field
@@ -113,19 +129,19 @@ public class RuleData {
         this.alertTime = alertTime;
     }
 
-    public int getAlertCount() {
+    public String getAlertCount() {
         return alertCount;
     }
 
-    public void setAlertCount(int alertCount) {
+    public void setAlertCount(String alertCount) {
         this.alertCount = alertCount;
     }
 
-    public int getAlertInerval() {
+    public String getAlertInerval() {
         return alertInerval;
     }
 
-    public void setAlertInerval(int alertInerval) {
+    public void setAlertInerval(String alertInerval) {
         this.alertInerval = alertInerval;
     }
 
@@ -145,11 +161,11 @@ public class RuleData {
         this.transferCheckFile = transferCheckFile;
     }
 
-    public int getMaxRetryCount() {
+    public String getMaxRetryCount() {
         return maxRetryCount;
     }
 
-    public void setMaxRetryCount(int maxRetryCount) {
+    public void setMaxRetryCount(String maxRetryCount) {
         this.maxRetryCount = maxRetryCount;
     }
 
@@ -159,5 +175,22 @@ public class RuleData {
 
     public void setSchedule(String schedule) {
         this.schedule = schedule;
+    }
+
+    public void printSetting(){
+        System.out.println("Owner: " + owner);
+        System.out.println("SrcPathTemplate: " + srcPathTemplate);
+        System.out.println("DstPathTemplate: " + dstPathTemplate);
+        System.out.println("TmpPathTemplate: " + tmpPathTemplate);
+        System.out.println("TriggerCallbackName: " + triggerCallbackName);
+        System.out.println("Ignore: " + ignore);
+        System.out.println("ConditionTemplate: " + conditionTemplate);
+        System.out.println("AlertTime: " + alertTime);
+        System.out.println("AlertCount: " + alertCount);
+        System.out.println("AlertInerval: " + alertInerval);
+        System.out.println("Lzo: " + lzo);
+        System.out.println("TransferCheckFile: " + transferCheckFile);
+        System.out.println("MaxRetryCount: " + maxRetryCount);
+        System.out.println("Schedule: " + schedule);
     }
 }
