@@ -35,6 +35,7 @@ public class Main {
                 }catch (Exception e){
                     System.out.println(e.getMessage());
                 }
+                break;
                 //-rule filename filename filename
             case "-rule":
                 try {
@@ -48,6 +49,7 @@ public class Main {
                     System.out.println(e.getMessage());
                     System.out.println("Usage: -rule <filename> <filename> <filename> <filename>");
                 }
+                break;
             case "-multitb":
                 try{
                     List<String> okFiles = OkFileReader.readOkFiles(args[1]);
@@ -57,6 +59,7 @@ public class Main {
                 }catch (Exception e) {
                     e.printStackTrace();
                 }
+                break;
             case "-tbsetting":
                 if (args.length != 3) {
                     System.out.println("Usage: -tbsetting <variable_name> <value>, Example: -tbsetting chineseName ExampleName");
@@ -87,11 +90,13 @@ public class Main {
 
             case "-view":
                 System.out.println("Settings:");
-                System.out.println("    fex:");
+                System.out.println("    Fex setting: ");
                 fexFileDataSetting.printAllVariables();
                 System.out.println("fexTemplatePath = " + fexTemplatePath);
-                System.out.println("    table:");
+                System.out.println("    Table setting:");
                 tableDataSetting.printData();
+                System.out.println("    Rule setting:");
+                ruleDataSetting.printSetting();
                 break;
 
             case "-fxsetting":
