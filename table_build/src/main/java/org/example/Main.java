@@ -24,7 +24,6 @@ public class Main {
         }
 
         switch (args[0]) {
-
             case "-rsetting":
                 if (args.length != 3) {
                     System.out.println("Invalid number of arguments.");
