@@ -24,42 +24,49 @@ public class Main {
         }
 
         switch (args[0]) {
+            case "-help":
+                printHelp();
+                break;
+
             case "-rsetting":
                 if (args.length != 3) {
                     System.out.println("Invalid number of arguments.");
                     return;
                 }
                 try {
-                    changeRuleSetting(ruleDataSetting,args[1],args[2]);
+                    changeRuleSetting(ruleDataSetting, args[1], args[2]);
                     System.out.println("Rule setting changed.");
-                }catch (Exception e){
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
                 break;
-                //-rule filename filename filename
+
             case "-rule":
                 try {
                     List<String> filenames = new ArrayList<>();
                     for (int i = 1; i < args.length; i++) {
                         filenames.add(args[i]);
                     }
-                    RuleGenerator ruleGenerator = new RuleGenerator(ruleTemplatePath,directoryPath,filenames,ruleDataSetting);
+                    RuleGenerator ruleGenerator = new RuleGenerator(ruleTemplatePath, directoryPath, filenames, ruleDataSetting);
                     ruleGenerator.generate();
-                }catch (Exception e){
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                     System.out.println("Usage: -rule <filename> <filename> <filename> <filename>");
                 }
                 break;
+
             case "-multitb":
-                try{
+                try {
                     List<String> okFiles = OkFileReader.readOkFiles(args[1]);
-                    MultiTableTempGenerator multiTableTempGenerator = new MultiTableTempGenerator(okFiles,tableTemplatePath,directoryPath,tableDataSetting);
+                    MultiTableTempGenerator multiTableTempGenerator = new MultiTableTempGenerator(okFiles, tableTemplatePath, directoryPath, tableDataSetting);
                     multiTableTempGenerator.generate();
-                    System.out.println("successfully generated multi table temp file.");
-                }catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("Successfully generated multi table temp file.");
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    System.out.println("Usage: -multitb okFilesPath");
                 }
                 break;
+
             case "-tbsetting":
                 if (args.length != 3) {
                     System.out.println("Usage: -tbsetting <variable_name> <value>, Example: -tbsetting chineseName ExampleName");
@@ -70,7 +77,7 @@ public class Main {
                     saveTableSettings(tableDataSetting);
                     System.out.println("Table setting updated successfully.");
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println(e.getMessage());
                 }
                 break;
 
@@ -84,7 +91,8 @@ public class Main {
                     tableTemplateGenerator.generate();
                     System.out.println("Generated table template.");
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println(e.getMessage());
+                    System.out.println("Usage: -table <okFilePath>");
                 }
                 break;
 
@@ -109,7 +117,7 @@ public class Main {
                     saveFexSettings(fexFileDataSetting);
                     System.out.println("Setting updated successfully.");
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println(e.getMessage());
                 }
                 break;
 
@@ -136,19 +144,39 @@ public class Main {
                     System.out.println("Usage: -fexgen sourceName landingName");
                     return;
                 }
-                List<FexFileData> inputFexFileDataList = new ArrayList<>();
-                FexFileData tempFexFileData = new FexFileData(fexFileDataSetting);
-                tempFexFileData.setFileReceivePath(args[1]);
-                tempFexFileData.setLandingFileName(args[2]);
-                inputFexFileDataList.add(tempFexFileData);
-                FexTemplateGenerator generator = new FexTemplateGenerator(fexTemplatePath, inputFexFileDataList, directoryPath);
-                generator.generate();
+                try {
+                    List<FexFileData> inputFexFileDataList = new ArrayList<>();
+                    FexFileData tempFexFileData = new FexFileData(fexFileDataSetting);
+                    tempFexFileData.setFileReceivePath(args[1]);
+                    tempFexFileData.setLandingFileName(args[2]);
+                    inputFexFileDataList.add(tempFexFileData);
+                    FexTemplateGenerator generator = new FexTemplateGenerator(fexTemplatePath, inputFexFileDataList, directoryPath);
+                    generator.generate();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    System.out.println("Usage: -fexgen sourceName landingName");
+                }
                 break;
 
             default:
                 System.out.println("Invalid command.");
+                printHelp();
                 break;
         }
+    }
+
+    private static void printHelp() {
+        System.out.println("Usage:");
+        System.out.println("    -help                      Display this help message.");
+        System.out.println("    -rsetting <var> <value>    Change a rule setting.");
+        System.out.println("    -rule <file1> <file2> ...  Generate rule files.");
+        System.out.println("    -multitb <okFilesPath>     Generate multi table temp file.");
+        System.out.println("    -tbsetting <var> <value>   Change a table setting.");
+        System.out.println("    -table <okFilePath>        Generate a table template.");
+        System.out.println("    -view                      View current settings.");
+        System.out.println("    -fxsetting <var> <value>   Change an Fex setting.");
+        System.out.println("    -fexmultigen <values> <landingNames> Generate multiple Fex templates.");
+        System.out.println("    -fexgen <sourceName> <landingName> Generate a Fex template.");
     }
 
     private static void changeFexSetting(FexFileData fexFileDataSetting, String variableName, String value) {
@@ -289,11 +317,11 @@ public class Main {
         }
     }
 
-    private static void saveRuleSetting(RuleData ruleDataSetting){
+    private static void saveRuleSetting(RuleData ruleDataSetting) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ruleSettingFilePath))) {
             oos.writeObject(ruleDataSetting);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -301,7 +329,7 @@ public class Main {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fexSettingsFilePath))) {
             oos.writeObject(fexFileDataSetting);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -309,7 +337,7 @@ public class Main {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tableSettingsFilePath))) {
             oos.writeObject(tableDataSetting);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -321,7 +349,7 @@ public class Main {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ruleSettingFilePath))) {
             return (RuleData) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return new RuleData();
         }
     }
@@ -334,7 +362,7 @@ public class Main {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fexSettingsFilePath))) {
             return (FexFileData) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return new FexFileData("", "");
         }
     }
@@ -347,7 +375,7 @@ public class Main {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(tableSettingsFilePath))) {
             return (TableData) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return new TableData();
         }
     }
